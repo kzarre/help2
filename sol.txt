@@ -1,2 +1,158 @@
-wowza
-again
+DISK PARTITIONING AND PERMANENT MOUNTING IN UBUNTU
+
+Aim:
+To create a new disk partition, format it with a filesystem, mount it in Ubuntu, and make the mount permanent.
+
+---
+
+STEP 1 — ADDING A NEW VIRTUAL DISK
+
+A new virtual hard disk was added to the Ubuntu virtual machine using VirtualBox settings.
+
+Reason:
+Partitioning cannot be performed unless an unused storage device is available. The new virtual disk acts like a new physical hard drive connected to the computer.
+
+---
+
+STEP 2 — CHECKING AVAILABLE DISKS
+
+Command Used:
+
+lsblk
+
+Explanation:
+The lsblk command displays all block storage devices connected to the system.
+
+Output observed:
+
+* sda  → Main Ubuntu disk
+* sda1, sda2 → Existing partitions
+* sdb → Newly added empty disk
+
+Reason:
+This step helps identify the new disk on which partitioning will be performed.
+
+---
+
+STEP 3 — CREATING A NEW PARTITION
+
+Command Used:
+
+sudo fdisk /dev/sdb
+
+Explanation:
+fdisk is a disk partitioning utility used to create, delete, and manage partitions.
+
+Options selected inside fdisk:
+
+n  → Create new partition
+p  → Create primary partition
+1  → Partition number
+w  → Write/save changes
+
+Result:
+A new partition named /dev/sdb1 was created.
+
+Reason:
+A disk must contain partitions before it can store data or filesystems.
+
+---
+
+STEP 4 — CREATING A FILESYSTEM
+
+Command Used:
+
+sudo mkfs.ext4 /dev/sdb1
+
+Explanation:
+mkfs means “make filesystem”.
+ext4 is the standard Linux filesystem.
+
+Reason:
+A partition is just raw storage space. A filesystem organizes the storage so files and folders can be stored properly.
+
+Result:
+The partition /dev/sdb1 was formatted with the EXT4 filesystem.
+
+---
+
+STEP 5 — CREATING A MOUNT POINT
+
+Command Used:
+
+sudo mkdir /mnt/mydisk
+
+Explanation:
+In Linux, storage devices are accessed through directories called mount points.
+
+Reason:
+The folder /mnt/mydisk will act as the location where the new partition becomes accessible.
+
+---
+
+STEP 6 — MOUNTING THE PARTITION
+
+Command Used:
+
+sudo mount /dev/sdb1 /mnt/mydisk
+
+Explanation:
+The mount command attaches the partition to the mount point directory.
+
+Reason:
+After mounting, the contents of the partition can be accessed through /mnt/mydisk.
+
+Verification Command:
+
+df -h
+
+Explanation:
+Displays mounted filesystems and available disk space.
+
+---
+
+STEP 7 — MAKING THE MOUNT PERMANENT
+
+Problem:
+The partition would normally unmount after a reboot.
+
+Solution:
+The partition information was added to the /etc/fstab file.
+
+First, the UUID was obtained using:
+
+sudo blkid
+
+Explanation:
+UUID (Universally Unique Identifier) uniquely identifies the partition.
+
+Then the fstab file was edited:
+
+sudo nano /etc/fstab
+
+Entry Added:
+
+UUID=<partition-uuid> /mnt/mydisk ext4 defaults 0 2
+
+Explanation:
+This tells Ubuntu to automatically mount the partition every time the system boots.
+
+---
+
+STEP 8 — TESTING THE CONFIGURATION
+
+Command Used:
+
+sudo mount -a
+
+Explanation:
+This command tests all mount entries written in the fstab file.
+
+Reason:
+If no error appears, the configuration is correct and automatic mounting will work after reboot.
+
+---
+
+RESULT
+
+The new disk partition was successfully created, formatted using the EXT4 filesystem, mounted in Ubuntu, and configured for permanent automatic mounting after system reboot.
